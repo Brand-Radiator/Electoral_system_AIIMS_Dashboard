@@ -1,0 +1,631 @@
+import React, { useEffect, useState } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
+import {
+  Card,
+  Button,
+  Row,
+  Col,
+  Form,
+  Alert,
+  Table,
+  ButtonGroup,
+  Modal,
+} from "react-bootstrap";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { FormInput, VerticalForm } from "../../../../components";
+import { API_BASE_URL } from "../../../../apiservices/apiService";
+import { logoutUser } from "../../../../redux/actions";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../../../redux/store";
+
+interface EducationInformation {
+  qualification: string;
+  institute: string;
+  subject: string;
+  degree: string;
+  passingYear: string;
+  _id?: string;
+}
+
+interface EducationInfoProps {
+  item: EducationInformation;
+  handleEducationInfoSubmit: (
+    event: React.FormEvent<HTMLFormElement>,
+    formData: EducationInformation
+  ) => Promise<void>;
+  setEducation: React.Dispatch<React.SetStateAction<EducationInformation>>;
+  isApiHit: boolean;
+  educationData: EducationInformation[];
+}
+
+const EducationSection = ({
+  item,
+  handleEducationInfoSubmit,
+  setEducation,
+  isApiHit,
+  educationData,
+}: EducationInfoProps) => {
+  const [newTaskModal, setNewTaskModal] = useState<boolean>(false);
+  const [profileItemId, setProfileItemId] = useState<string>();
+  const [isUpdating, setIsUpdating] = useState<boolean>(false);
+  const dispatch = useDispatch<AppDispatch>();
+  const [education, setEducationInfo] = useState<EducationInformation>({
+    qualification: "",
+    institute: "",
+    subject: "",
+    degree: "",
+    passingYear: "",
+  });
+
+  const { user, userLoggedIn, loading, error, _id } = useSelector(
+    (state: RootState) => ({
+      user: state.Auth.user,
+      loading: state.Auth.loading,
+      error: state.Auth.error,
+      userLoggedIn: state.Auth.userLoggedIn,
+      _id: state.Auth._id,
+    })
+  );
+
+  let profileId = user?._id;
+  const Key_Key = user?.moniterd_ttl;
+
+  const section = "education";
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // setDataLoading(true);
+        const response = await fetch(
+          `${API_BASE_URL}/api/doctor/nested/${profileId}/${Key_Key}/${section}/${profileItemId}`,
+          {
+            method: "GET",
+            credentials: "include",
+          }
+        );
+
+        if (!response.ok) {
+          // Handle non-successful response (optional)
+          console.error("Error fetching data:", response.statusText);
+          return;
+        }
+        if (response.status === 440) {
+          alert("Session Expired");
+          dispatch(logoutUser());
+          window.location.href = "http://165.22.219.69:3002/auth/login"; // Use the full URL, including the protocol (http or https)
+        }
+        const data = await response.json();
+        setEducationInfo(data?.data);
+
+        // setDataLoading(false);
+      } catch (error) {
+        // Handle fetch error
+        // setDataLoading(false);
+        console.error("Error during fetch:", error);
+      }
+    };
+    if (profileItemId) {
+      fetchData();
+    }
+
+    // Note: You may want to add a cleanup function here if needed
+  }, [profileId, Key_Key, profileItemId]); // Include dependencies if needed
+
+  // const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const handleChange = (e: React.ChangeEvent<any>) => {
+    const { name, value, files, type, checked } = e.target;
+
+    if (type === "checkbox") {
+      // If the input type is a checkbox, update the state with the checked status
+      setEducation((prevData) => ({ ...prevData, [name]: checked }));
+    } else if (files && files.length > 0) {
+      // If the input type is file, update the state with the file and its name
+      setEducation((prevData) => ({
+        ...prevData,
+        [name]: files[0],
+        // image: files[0].name,
+      }));
+    } else if (type === "select-one") {
+      // If the input type is select-one (dropdown), update the state with the selected value
+      setEducation((prevData) => ({ ...prevData, [name]: value }));
+    } else {
+      // If the input type is not a file or checkbox, update the state as usual
+      setEducation((prevData) => ({ ...prevData, [name]: value }));
+    }
+  };
+
+  const deleteItem = async (itemId: string) => {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/delete/doctor/nested/${profileId}/${Key_Key}/${section}/${itemId}`,
+
+        {
+          method: "PATCH",
+
+          credentials: "include",
+        }
+      );
+      if (response.status === 440) {
+        alert("Session Expired");
+        dispatch(logoutUser());
+        window.location.href = "http://165.22.219.69:3002/auth/login"; // Use the full URL, including the protocol (http or https)
+      }
+      if (!response.ok) {
+        let errorMsg = await response.json();
+        // setIsResponse(errorMsg.message);
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      // Assuming you want to parse the JSON response
+      const data = await response.json();
+
+      if (data) {
+        alert("Deleted");
+        window.location.reload();
+      }
+    } catch (error) {
+      // setIsResponse("Try after Some time")
+      // setShowModal(true);
+
+      console.error("Error during delete the employee:", error);
+    }
+  };
+
+  const handleUpdateChange = (e: React.ChangeEvent<any>) => {
+    const { name, value, files, type, checked } = e.target;
+
+    if (type === "checkbox") {
+      // If the input type is a checkbox, update the state with the checked status
+      setEducationInfo((prevData) => ({ ...prevData, [name]: checked }));
+    } else if (files && files.length > 0) {
+      // If the input type is file, update the state with the file and its name
+      setEducationInfo((prevData) => ({
+        ...prevData,
+        [name]: files[0],
+        // image: files[0].name,
+      }));
+    } else if (type === "select-one") {
+      // If the input type is select-one (dropdown), update the state with the selected value
+      setEducationInfo((prevData) => ({ ...prevData, [name]: value }));
+    } else {
+      // If the input type is not a file or checkbox, update the state as usual
+      setEducationInfo((prevData) => ({ ...prevData, [name]: value }));
+    }
+  };
+
+  const handleEducationInfoUpdate = async (
+    event: React.FormEvent<HTMLFormElement>,
+    educationInfo: EducationInformation
+  ) => {
+    event.preventDefault();
+
+    const { qualification, institute, subject, degree, passingYear } =
+      educationInfo;
+    const formData = new FormData(); // append every thing one by one inside this form data
+    formData.append("qualification", qualification);
+    formData.append("institute", institute);
+    formData.append("subject", subject);
+    formData.append("degree", degree);
+    formData.append("passingYear", passingYear);
+
+    const section = "education";
+
+    try {
+      setIsUpdating(true);
+      const response = await fetch(
+        `${API_BASE_URL}/api/update/doctor/nested/${profileId}/${Key_Key}/${section}/${profileItemId}`,
+
+        {
+          method: "PATCH",
+          body: formData,
+          credentials: "include",
+        }
+      );
+
+      if (response.status === 440) {
+        alert("Session Expired");
+        dispatch(logoutUser());
+        window.location.href = "http://165.22.219.69:3002/auth/login"; // Use the full URL, including the protocol (http or https)
+      }
+
+      if (response.status === 429) {
+        // console.log("response---6566656", response)
+        console.log(response.status, "STATUS 429");
+        // setShowModal(true);
+      }
+      // console.log("response--statue", response)
+
+      if (response.status === 400) {
+        // setIsError(true);
+        console.log(response.status, "STATUS 400");
+
+        let errorMessage = await response.json();
+        // setIsResponse(errorMessage.message);
+      }
+
+      // Assuming you want to parse the JSON response
+      const data = await response.json();
+      // console.log("response---", data);
+      if (data) {
+        setIsUpdating(false);
+        alert("Education Qualification Updated Successfully");
+        window.location.reload();
+      }
+    } catch (error: any) {
+      // setIsResponse(error)
+      // setShowModal(true)
+      console.error("Error during update personal information:", error);
+    }
+  };
+
+  /**
+   * Toggles the new task modal
+   */
+  const toggleNewTaskModal = () => {
+    setNewTaskModal((prevstate) => !prevstate);
+  };
+
+  const editItem = async (id: string) => {
+    setProfileItemId(id);
+    toggleNewTaskModal();
+  };
+
+  const generateYearOptions = (start: any, end: any) => {
+    const years = [];
+    for (let year = end; year >= start; year--) {
+      years.push(
+        <option key={year} value={year}>
+          {year}
+        </option>
+      );
+    }
+    return years;
+  };
+
+  return (
+    <>
+      <Card>
+        <Card.Body>
+          <Row>
+            <Col lg={6}>
+              <Form
+                style={{ width: "100%" }}
+                onSubmit={(e) => handleEducationInfoSubmit(e, item)}
+              >
+                <Form.Group>
+                  <Form.Label className="d-flex  pt-2 justify-content-start font-weight-bold">
+                    Subject<span style={{ color: "red" }}> *</span>
+                  </Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="qualification"
+                    placeholder="Enter Subject"
+                    value={item?.qualification}
+                    required
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+
+                <Form.Group>
+                  <Form.Label className="d-flex  pt-2 justify-content-start font-weight-bold">
+                    Degree
+                  </Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="degree"
+                    placeholder="Enter Degree"
+                    value={item?.degree}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label className="d-flex  pt-2 justify-content-start font-weight-bold">
+                    Institute/University<span style={{ color: "red" }}> *</span>
+                  </Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="institute"
+                    placeholder="Enter Institute/University"
+                    value={item?.institute}
+                    required
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+
+                <Form.Group className="mb-3 mt-2" onChange={handleChange}>
+                  <Form.Label>Organisation Type</Form.Label>
+                  <Form.Select
+                    name="subject"
+                    // required
+                    value={item?.subject}
+                  >
+                    <option value="" disabled>
+                      Select organisation type
+                    </option>
+
+                    <option value="government">Government</option>
+                    <option value="private">Private</option>
+                    <option value="autonomous">Autonomous</option>
+                    <option value="others">Others</option>
+                  </Form.Select>
+                </Form.Group>
+
+                {/* <Form.Group>
+                  <Form.Label className="d-flex pt-2 justify-content-start">
+                    Organisation Type <span style={{ color: "red" }}> *</span>
+                  </Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="subject"
+                    placeholder="Enter Organisation URL"
+                    value={item?.subject}
+                    required
+                    onChange={handleChange}
+                  />
+                </Form.Group> */}
+
+                {/* <Form.Group>
+                  <Form.Label className="d-flex pt-2 justify-content-start">
+                    Passing Year
+                  </Form.Label>
+                  <Form.Control
+                    type="date"
+                    name="passingYear"
+                    placeholder="Enter Passing Year"
+                    value={item?.passingYear}
+                    onChange={handleChange}
+                  />
+                </Form.Group> */}
+
+                <Form.Group>
+                  <Form.Label className="d-flex pt-2 justify-content-start">
+                    Passing Out Year
+                  </Form.Label>
+                  <Form.Control
+                    as="select"
+                    name="passingYear"
+                    value={item?.passingYear}
+                    onChange={handleChange}
+                  >
+                    <option value="">Select Passing Year</option>
+                    {generateYearOptions(1900, 2100)}{" "}
+                    {/* Adjust the range as needed */}
+                  </Form.Control>
+                </Form.Group>
+
+                <Form.Group className="pt-2 pb-2  mb-0 d-flex gap-2">
+                  {isApiHit ? (
+                    <Button variant="primary" type="submit" disabled>
+                      Adding
+                    </Button>
+                  ) : (
+                    <Button variant="primary" type="submit">
+                      Add
+                    </Button>
+                  )}
+
+                  {/* <Button variant="secondary" type="reset">
+                    Cancel
+                  </Button> */}
+                </Form.Group>
+              </Form>
+            </Col>
+          </Row>
+        </Card.Body>
+      </Card>
+
+      {educationData?.length >= 1 ? (
+        <Row>
+          <Card>
+            <Card.Body>
+              {/* <h4>Update or delete Roles</h4> */}
+              {/* {isResponse && (
+              <Alert variant="danger" className="my-2">
+                {isResponse}
+              </Alert>
+            )} */}
+              <div className="table-responsive">
+                <Table striped bordered hover>
+                  <thead>
+                    <tr>
+                      <th>Sr. N</th>
+                      <th>Subject</th>
+                      <th>Institute/University</th>
+                      <th>Passing Year</th>
+                      <th>Action</th>
+                      {/* {Role.Role === "Chess" ? <th>Action</th> : ""} */}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {educationData?.length >= 1
+                      ? educationData?.map((item, i) => (
+                          <tr key={i}>
+                            <td>{i + 1}</td>
+                            <td>{item?.qualification}</td>
+                            <td>{item.institute}</td>
+                            <td>{item.passingYear}</td>
+                            <td>
+                              <div>
+                                <Col>
+                                  <ButtonGroup className="">
+                                    <Button
+                                      variant="soft-primary"
+                                      className="btn btn-soft-primary btn-sm pl-5 pr-5"
+                                      onClick={() => editItem(item?._id!)}
+                                    >
+                                      <i className="uil uil-edit "></i>Edit
+                                    </Button>
+                                  </ButtonGroup>
+                                </Col>
+
+                                <Col>
+                                  <ButtonGroup className=" pt-2">
+                                    <Button
+                                      className="btn btn-soft-danger btn-sm"
+                                      onClick={() => deleteItem(item?._id!)}
+                                    >
+                                      <i className="uil uil-trash-alt me-1"></i>
+                                      Delete
+                                    </Button>
+                                  </ButtonGroup>
+                                </Col>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      : ""}
+                  </tbody>
+                </Table>
+              </div>
+            </Card.Body>
+          </Card>
+        </Row>
+      ) : (
+        ""
+      )}
+
+      {/* edit task modal */}
+      {newTaskModal && (
+        <Modal
+          show={newTaskModal}
+          onHide={toggleNewTaskModal}
+          size="lg"
+          centered
+        >
+          <Modal.Header closeButton>
+            <h4 className="modal-title">Edit Education Qualification</h4>
+          </Modal.Header>
+          <Modal.Body>
+            <Form
+              style={{ width: "100%" }}
+              onSubmit={(e) => handleEducationInfoUpdate(e, education)}
+            >
+              <Form.Group>
+                <Form.Label className="d-flex  pt-2 justify-content-start font-weight-bold">
+                  Subject<span style={{ color: "red" }}> *</span>
+                </Form.Label>
+                <Form.Control
+                  type="text"
+                  name="qualification"
+                  placeholder="Enter Subject"
+                  value={education?.qualification}
+                  required
+                  onChange={handleUpdateChange}
+                />
+              </Form.Group>
+
+              <Form.Group>
+                <Form.Label className="d-flex  pt-2 justify-content-start font-weight-bold">
+                  Degree
+                </Form.Label>
+                <Form.Control
+                  type="text"
+                  name="degree"
+                  placeholder="Enter Degree"
+                  value={education?.degree}
+                  onChange={handleUpdateChange}
+                />
+              </Form.Group>
+              <Form.Group>
+                <Form.Label className="d-flex  pt-2 justify-content-start font-weight-bold">
+                  Institute/University<span style={{ color: "red" }}> *</span>
+                </Form.Label>
+                <Form.Control
+                  type="text"
+                  name="institute"
+                  placeholder="Enter Department"
+                  value={education?.institute}
+                  required
+                  onChange={handleUpdateChange}
+                />
+              </Form.Group>
+
+              <Form.Group className="mb-3 mt-2" onChange={handleUpdateChange}>
+                <Form.Label>Organisation Type</Form.Label>
+                <Form.Select
+                  name="subject"
+                  // required
+                  value={education?.subject}
+                >
+                  <option value="" disabled>
+                    Select organisation type
+                  </option>
+
+                  <option value="government">Government</option>
+                  <option value="private">Private</option>
+                  <option value="autonomous">Autonomous</option>
+                  <option value="others">Others</option>
+                </Form.Select>
+              </Form.Group>
+
+              {/* <Form.Group>
+                <Form.Label className="d-flex pt-2 justify-content-start">
+                  Organisation Type <span style={{ color: "red" }}> *</span>
+                </Form.Label>
+                <Form.Control
+                  type="text"
+                  name="subject"
+                  placeholder="Enter Organisation URL"
+                  value={education?.subject}
+                  required
+                  onChange={handleUpdateChange}
+                />
+              </Form.Group> */}
+
+              {/* <Form.Group>
+                <Form.Label className="d-flex pt-2 justify-content-start">
+                  Passing Year
+                </Form.Label>
+                <Form.Control
+                  type="date"
+                  name="passingYear"
+                  placeholder="Enter Passing Year"
+                  value={education?.passingYear}
+                  onChange={handleUpdateChange}
+                />
+              </Form.Group> */}
+
+              <Form.Group>
+                <Form.Label className="d-flex pt-2 justify-content-start">
+                  Passing Out Year
+                </Form.Label>
+                <Form.Control
+                  as="select"
+                  name="passingYear"
+                  value={education?.passingYear}
+                  onChange={handleUpdateChange}
+                >
+                  <option value="">Select Passing Year</option>
+                  {generateYearOptions(1900, 2100)}{" "}
+                  {/* Adjust the range as needed */}
+                </Form.Control>
+              </Form.Group>
+
+              <Form.Group className="d-flex justify-content-end gap-2 m-1">
+                {isUpdating ? (
+                  <Button variant="primary" type="submit" disabled>
+                    Saving
+                  </Button>
+                ) : (
+                  <Button variant="primary" type="submit">
+                    Save
+                  </Button>
+                )}
+
+                <Button
+                  onClick={toggleNewTaskModal}
+                  variant="secondary"
+                  className="me-1"
+                >
+                  Cancel
+                </Button>
+              </Form.Group>
+            </Form>
+          </Modal.Body>
+        </Modal>
+      )}
+    </>
+  );
+};
+
+export default EducationSection;

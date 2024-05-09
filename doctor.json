@@ -1,0 +1,133 @@
+{
+    "personalInfo": {
+      "dob": "1978-08-03",
+      "doj": "2018-10-04",
+      "gender": "Male"
+    },
+    "isDeleted": false,
+    "expertise": {
+      "WOSsubject": "Medical and Health Sciences",
+      "expertise": "Pharmacology and Pharmacy",    
+      "briefInfo": "Providing Teaching and Training To MBBS and MD Students."   
+    },
+    "contactInfo": {
+      "mobileNumber": "9454720948",
+      "phoneNumber": "079-29288361",
+      "address": {
+        "country": "India",
+        "state": "Uttar Pradesh",
+        "city": "Etawah",
+        "zip": "206130"
+      },
+      "webURL": "https://www.upums.ac.in/Index.aspx"
+    },
+    "experience": [
+      {
+        "organization": "UPUMS",
+        "department": "Anotomy",
+        "orgType": "Select Organization Type",
+        "orgURL": "Enter Organisation Url",
+        "district": "Etawah",
+        "isni": "0000 0001 0153 2859",
+        "designation": "Assistance Professor",
+        "startDate": {"month": "07", "year": "2009"},
+        "endDate": {"month": "", "year": ""},
+        "currentlyWorking": true
+      }
+    ],
+    "education": [
+      {
+        "qualification": "Ph.D",
+        "institute": "Enter institute",
+        "subject": "Enter Subject",
+        "passingYear": "2003"
+      },
+       {
+        "qualification": "M.tech",
+        "institute": "Enter institute",
+        "subject": "Enter Subject",
+        "passingYear": "2000"
+      }
+    ],
+    "honoursAndAwards": [
+      {
+        "year": "2005",
+        "awardName": "Awards and Honours",
+        "awardedBy": "Awards By"
+      }
+    ],
+    "doctoralTheses": [
+      {
+        "researcherName": "Dr. Sushil Kumar",
+        "title": "Enter Theses Title",
+        "institute": "Enter Theses Award Institute",
+        "awardedYear": "2007"
+      }
+    ],
+    "professionalMemberships": [
+      {
+        "bodyName": "Enter Professional Body Name",
+        "memberType": "Enter Member Type",
+        "awardedYear": "2009"
+      }
+    ],
+    "committeeMemberships": [
+      {
+        "year": 2023,
+        "committeeName": "Student Council, UPUMS",
+        "role": "Officer In-Charge"
+      },
+      {
+        "year": 2022,
+        "committeeName": "NAAC Criteria",
+        "role": "Criteria Head"
+      },
+      {
+        "year": 2022,
+        "committeeName": "News Letter",
+        "role": "Associate Editor"
+      }
+    ],
+    "researchProjects": [
+      {
+        "title": "Title of the Project",
+        "startDate": {"month": "05", "year": "2018"},
+        "endDate": {"month": "06", "year": "2020"},
+        "ongoing": false,
+        "role": "Enter Role",
+        "fundingAgency": "Enter Funding Agency",
+        "grantNo": "Enter Grant No.",
+        "status": "Status",
+        "amount": "Enter Amount"
+      }
+    ],
+    "patents": [
+      {
+        "title": "Title of the Patent",
+        "inventors": "investor name",
+        "applicantName": "Applicant Name/Organisation name",
+        "applicationNumber": "131311311",
+        "patentNumber": "123444",
+        "country": "India",
+        "subjectCategory": "Agriculture Sciences",
+        "fillingDate": "2024-02-09",
+        "publicationDate": "2023-02-08",
+        "status": "Published"
+      }
+    ],
+    "publications": [
+      {
+        "workType": "Article",
+        "title": "Title of the Publication",
+        "journalBookTitle": "Enter Journal/Book Title",
+        "year": 2024,
+        "authors": "authors",
+        "url": "https://github.com/",
+        "doi": "Enter Doi",
+        "volume": "Enter Volume",
+        "pageNo": "Enter Page No",
+        "editor": "Enter Editor Name",
+        "publisher": "Enter Publisher Name"
+      }
+    ]
+  }
