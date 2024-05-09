@@ -1,6 +1,7 @@
 // apiService.ts
 // export const API_BASE_URL = 'http://165.22.219.69:5002'
-export const API_BASE_URL = 'http://localhost:5002';
+export const API_BASE_URL ='https://aiims-voting-api.onrender.com'
+// export const API_BASE_URL = 'http://localhost:5002';
 
 const apiService = {
   get: async <T>(endpoint: string, queryParams: Record<string, any> = {}): Promise<T> => {
